@@ -15,17 +15,35 @@ import slam
 
 oldOdom = None
 oldScan = None
-pose = (0, 0, 0)
+pose = (0, 30, 0)
 gmap = np.ones((1100, 1100), np.float32) * 0.5
 
 def drive(msg):
-  global cmd_vel_pub
-  minRange = min(msg.ranges[85], msg.ranges[95])
   control = Twist()
-  if minRange < 5:
-    control.angular.z = 2
+  if msg.ranges[90] < 3:
+    control.linear.x = 1
+  elif msg.ranges[90] > 3:
+    control.linear.x = 3
+
+  if msg.ranges[135] < 3.5:
+    control.angular.z = -5
+  elif msg.ranges[45] < 3.5:
+    control.angular.z = 5
   else:
-    control.linear.x = 2
+    control.angular.z = 0
+
+  if msg.ranges[90] < 2 or msg.ranges[75] < 2 or msg.ranges[105] < 2:
+    control.linear.x = 0
+    if control.angular.z == 0:
+      control.angular.z = 1
+
+  global cmd_vel_pub
+  #minRange = min(msg.ranges[85], msg.ranges[95])
+  #control = Twist()
+  #if minRange < 5:
+  #  control.angular.z = 2
+  #else:
+  #  control.linear.x = 2
   cmd_vel_pub.publish(control)
   return control
 
