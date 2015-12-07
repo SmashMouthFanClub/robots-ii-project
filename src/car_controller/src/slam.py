@@ -38,8 +38,8 @@ def gridMapping(gmap, pose, scan):
   cy, cx = gmap.shape
   gmap[inFOV[:,1] + int(y * 10) + int(cy / 2), inFOV[:,0] + int(x * 10) + int(cx / 2)] += logOdds
 
-  cv2.imshow('a', cv2.flip(gmap, 0))
-  cv2.waitKey(1)
+  #cv2.imshow('a', cv2.flip(gmap, 0))
+  #cv2.waitKey(1)
 
 # given an angle, return an array of points in the grid map relative to the pose
 #   that are in the field of view
@@ -79,8 +79,8 @@ def scanMatch(gmap, pose, newScan, oldScan, oldOdom):
   # for proj in posesProjected:
   #   scanMatchProbability(gmap, proj, scan)
 
-  posesProjected = scanMatchSample(pose, oldOdom, samples = 20)
-  return scanToScanMatchProabability(pose, posesProjected, oldScan, newScan, oldOdom)
+  posesProjected = scanMatchSample(pose, oldOdom, samples = 100)
+  return scanToScanMatchProbability(pose, posesProjected, oldScan, newScan, oldOdom)
 
 # generate new poses from the old pose and the odometry from last frame
 def scanMatchSample(pose, odom, samples = 50):
@@ -116,7 +116,7 @@ def scanMatchSample(pose, odom, samples = 50):
 #     print lineit.createLineIterator((pose * 10).astype(int), (point * 10).astype(int), gmap)
 
 # pick the poses that best explains the new scan
-def scanToScanMatchProabability(oldPose, newPoses, newScan, oldScan, odom):
+def scanToScanMatchProbability(oldPose, newPoses, newScan, oldScan, odom):
   # compute how much to shift the new scan by for each particle
   # dPoses = oldPose - newPoses
   dPoses = newPoses - oldPose
@@ -136,12 +136,15 @@ def scanToScanMatchProabability(oldPose, newPoses, newScan, oldScan, odom):
 
   # debug stuff
   # print diffs[diffMin], diffs[diffMax], diffs[diffMax] - diffs[diffMin]
-  # img = np.zeros((512, 512, 3), dtype = np.uint8)
-  # fov.draw(img, oldPoints[0], (0, 0, 255))
-  # fov.draw(img, newPoints[diffMin], (255, 0, 0))
-  # fov.draw(img, newPoints[diffMax], (0, 255, 0))
-  # cv2.imshow('a', img)
-  # cv2.waitKey(1)
+  imgGood = np.zeros((512, 512, 3), dtype = np.uint8)
+  imgBad = np.zeros((512, 512, 3), dtype = np.uint8)
+  fov.draw(imgGood, oldPoints[0], (255, 0, 0))
+  fov.draw(imgBad, oldPoints[0], (255, 0, 0))
+  fov.draw(imgGood, newPoints[diffMin], (0, 255, 0))
+  fov.draw(imgBad, newPoints[diffMax], (0, 0, 255))
+  cv2.imshow('good', imgGood)
+  cv2.imshow('bad', imgBad)
+  cv2.waitKey(1)
 
   choice = newPoses[diffMin]
   return choice
