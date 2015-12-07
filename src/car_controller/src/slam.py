@@ -79,7 +79,7 @@ def scanMatch(gmap, pose, newScan, oldScan, oldOdom):
   # for proj in posesProjected:
   #   scanMatchProbability(gmap, proj, scan)
 
-  posesProjected = scanMatchSample(pose, oldOdom, samples = 20)
+  posesProjected = scanMatchSample(pose, oldOdom, samples = 50)
   return scanToScanMatchProabability(pose, posesProjected, oldScan, newScan, oldOdom)
 
 # generate new poses from the old pose and the odometry from last frame

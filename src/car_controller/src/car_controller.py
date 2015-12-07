@@ -15,7 +15,7 @@ import slam
 
 oldOdom = None
 oldScan = None
-pose = (0, 30, 0)
+pose = (0, 0, 0)
 gmap = np.ones((1100, 1100), np.float32) * 0.5
 
 def drive(msg):
@@ -53,8 +53,7 @@ def laser_cb(msg):
   if oldOdom != None:
     newPose = slam.scanMatch(gmap, pose, msg.ranges, oldScan, oldOdom)
     slam.gridMapping(gmap, newPose, msg.ranges)
-    pose = (newPose[0], newPose[1], newPose[2])
-    # slam.gridMapping(gmap, pose, msg.ranges)
+    # pose = (newPose[0], newPose[1], newPose[2])
   oldOdom = control
   oldScan = msg.ranges
 
@@ -81,7 +80,7 @@ def pose_cb(msg):
 def main():
   rp.init_node('aaa', anonymous=True)
   rp.Subscriber('/car_1/scan', LaserScan, laser_cb)
-  # rp.Subscriber('/robot_0/base_pose_ground_truth', Odometry, pose_cb)
+  rp.Subscriber('/robot_0/base_pose_ground_truth', Odometry, pose_cb)
 
   global cmd_vel_pub
   cmd_vel_pub = rp.Publisher('/car_1/velocity', Twist, queue_size=1)
